@@ -1,0 +1,30 @@
+{
+    "Footballer": {
+        "elo": 1200.0,
+        "checkpoints": [
+            {
+                "steps": 48320,
+                "file_path": "results/messi_vs_ronaldo_v1/Footballer/Footballer-48320.onnx",
+                "reward": -1.3591196070192382,
+                "creation_time": 1785556023.687883,
+                "auxillary_file_paths": [
+                    "results/messi_vs_ronaldo_v1/Footballer/Footballer-48320.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 48320,
+            "file_path": "results/messi_vs_ronaldo_v1/Footballer.onnx",
+            "reward": -1.3591196070192382,
+            "creation_time": 1785556023.687883,
+            "auxillary_file_paths": [
+                "results/messi_vs_ronaldo_v1/Footballer/Footballer-48320.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.30.0",
+        "torch_version": "1.11.0"
+    }
+}
