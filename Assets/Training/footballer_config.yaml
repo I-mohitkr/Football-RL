@@ -1,35 +1,43 @@
 behaviors:
   Footballer:
     # === Trainer ===
-    trainer_type: ppo                    # PPO is the best for this type of game
-    max_steps: 5000000                   # 5 million steps — increase if agents need more time
-    time_horizon: 128                    # How far ahead the agent "plans"
+    trainer_type: ppo                    # PPO — best for continuous-action self-play
+    max_steps: 5000000                   # 5 million steps (~5 hours on Colab)
+    time_horizon: 256                    # Doubled from 128 — gives the agent more
+                                         # foresight for multi-step plays (approach →
+                                         # dribble → shoot). Longer horizon helps
+                                         # because our episodes can be long (goal-only
+                                         # termination, no MaxStep timeout).
     summary_freq: 25000                  # Log stats every 25k steps
 
-    # === Hyperparameters (tuned for fast, stable learning) ===
+    # === Hyperparameters ===
     hyperparameters:
       batch_size: 2048                   # Large batch = stable gradients
-      buffer_size: 20480                 # 10x batch size
-      learning_rate: 0.0003             # Standard PPO learning rate
-      learning_rate_schedule: linear     # Decay LR over training
+      buffer_size: 20480                 # 10× batch size (standard ratio)
+      learning_rate: 0.0003              # Standard PPO learning rate
+      learning_rate_schedule: linear     # Decay LR toward 0 over max_steps
       beta: 0.005                        # Entropy bonus — encourages exploration
-      epsilon: 0.2                       # PPO clipping
-      lambd: 0.95                        # GAE lambda
-      num_epoch: 3                       # Passes over each batch
+      epsilon: 0.2                       # PPO clipping range
+      lambd: 0.95                        # GAE lambda (bias-variance tradeoff)
+      num_epoch: 3                       # Passes over each buffer
 
     # === Neural Network ===
     network_settings:
-      hidden_units: 256                  # Neurons per hidden layer
-      num_layers: 2                      # 2 hidden layers
-      normalize: true                    # Normalize observations (CRITICAL for fast learning)
-      vis_encode_type: simple            # Not using visual observations
+      hidden_units: 256                  # 256 neurons per hidden layer
+      num_layers: 2                      # 2 hidden layers (plenty for 24 obs)
+      normalize: true                    # Running-mean normalization on observations
+                                         # (works WITH our manual /20f normalization —
+                                         # the two are complementary, not redundant)
 
     # === Rewards ===
     reward_signals:
       extrinsic:
-        gamma: 0.99                      # High discount = agent values future rewards
+        gamma: 0.995                     # Bumped from 0.99 — with longer episodes
+                                         # (goal-only termination) a higher gamma
+                                         # helps the agent value distant future
+                                         # rewards like eventually scoring.
         strength: 1.0
-      curiosity:                         # Curiosity module helps explore when rewards are sparse
+      curiosity:                         # Curiosity helps explore when goals are rare
         gamma: 0.99
         strength: 0.02                   # Keep low so it doesn't override real rewards
         encoding_size: 256
@@ -37,12 +45,12 @@ behaviors:
     # === Self-Play (Messi vs Ronaldo!) ===
     self_play:
       window: 10                         # Keep last 10 opponent snapshots
-      play_against_latest_model_ratio: 0.5  # 50% of time play latest, 50% play older versions
+      play_against_latest_model_ratio: 0.5  # 50% latest, 50% older versions
       save_steps: 50000                  # Save a new opponent snapshot every 50k steps
       swap_steps: 50000                  # Swap opponent every 50k steps
-      team_change: 100000               # Change team assignment every 100k steps
-      initial_elo: 1200                  # Starting ELO rating for tracking skill
+      team_change: 100000                # Swap team assignment every 100k steps
+      initial_elo: 1200                  # Starting ELO rating
 
-    # === Environment ===
+    # === Checkpoints ===
     keep_checkpoints: 5                  # Keep last 5 model checkpoints
     checkpoint_interval: 500000          # Save checkpoint every 500k steps

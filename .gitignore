@@ -49,3 +49,10 @@ ExportedObj/
 # Unity3D crash reports
 sysinfo.txt
 Assets/Untitled.glb
+
+# Local training environments and generated ML-Agents artifacts
+/mlenv/
+/ml-agents-src/
+/results/
+/Assets/*.onnx
+*.DS_Store
