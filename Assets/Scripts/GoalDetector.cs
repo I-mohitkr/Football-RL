@@ -59,8 +59,9 @@ public class GoalDetector : MonoBehaviour
             ScoreManager.Instance.AddScore(scoringTeam);
         }
 
-        // Wait for 1.5 seconds to let the ball hit the net and look natural
-        yield return new WaitForSeconds(1.5f);
+        // 0.1s is enough to let the physics settle before resetting.
+        // (Original 1.5s was for demo/visual mode — too slow for RL training.)
+        yield return new WaitForSeconds(0.1f);
 
         // Notify agents and reset
         blueAgent.GoalScored(scoringTeam);
