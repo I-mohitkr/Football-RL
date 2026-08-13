@@ -138,6 +138,20 @@ public class FootballAgent : Agent
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * 15f);
             }
         }
+
+        // Stalemate Breaker (Only Team Blue runs this to avoid double-firing)
+        if (team == Team.Blue && ballRb != null && opponent != null)
+        {
+            float distToBall = Vector3.Distance(transform.position, ballTransform.position);
+            float oppDistToBall = Vector3.Distance(opponent.transform.position, ballTransform.position);
+            
+            // If both agents are crushing the ball from opposite sides and it's barely moving, pop it out!
+            if (distToBall < kickRange && oppDistToBall < kickRange && ballRb.linearVelocity.magnitude < 0.5f)
+            {
+                Vector3 randomPop = new Vector3(Random.Range(-1f, 1f), 0.5f, Random.Range(-1f, 1f)).normalized * 5f;
+                ballRb.AddForce(randomPop, ForceMode.VelocityChange);
+            }
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════
